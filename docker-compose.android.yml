@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  android-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.android
+    volumes:
+      - ./apk-releases:/app/apk-releases
+      - ./android:/app/android
+    environment:
+      - ANDROID_HOME=/opt/android-sdk
+      - GRADLE_USER_HOME=/gradle-cache
+    command: bash -c "npm run build && ./build-apk.sh"

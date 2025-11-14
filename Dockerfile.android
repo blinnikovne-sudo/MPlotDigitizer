@@ -1,0 +1,56 @@
+# Dockerfile для сборки Android APK
+# Включает все необходимые инструменты
+
+FROM ubuntu:24.04
+
+# Установка базовых пакетов
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    unzip \
+    git \
+    openjdk-17-jdk \
+    && rm -rf /var/lib/apt/lists/*
+
+# Установка Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Установка Android Command Line Tools
+ENV ANDROID_HOME=/opt/android-sdk
+ENV PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools
+
+RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
+    cd ${ANDROID_HOME}/cmdline-tools && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip && \
+    unzip commandlinetools-linux-11076708_latest.zip && \
+    rm commandlinetools-linux-11076708_latest.zip && \
+    mv cmdline-tools latest
+
+# Принятие лицензий и установка необходимых компонентов
+RUN yes | sdkmanager --licenses || true
+RUN sdkmanager "platform-tools" \
+    "platforms;android-34" \
+    "build-tools;34.0.0" \
+    "cmdline-tools;latest"
+
+# Установка Gradle
+ENV GRADLE_VERSION=8.11.1
+RUN wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip && \
+    unzip -q gradle-${GRADLE_VERSION}-bin.zip -d /opt && \
+    rm gradle-${GRADLE_VERSION}-bin.zip && \
+    ln -s /opt/gradle-${GRADLE_VERSION} /opt/gradle
+ENV PATH=${PATH}:/opt/gradle/bin
+
+# Рабочая директория
+WORKDIR /app
+
+# Копирование проекта
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+# Команда для сборки
+CMD ["./build-apk.sh"]
