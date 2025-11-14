@@ -54,71 +54,46 @@ docker load < wpd-android.tar
 
 ---
 
-## ✅ Решение 2: GitHub Actions (CI/CD)
+## ✅ Решение 2: GitHub Actions (CI/CD) ⭐ УЖЕ НАСТРОЕНО
 
 ### Преимущества
 - Полностью автоматическая сборка
 - Бесплатно для публичных репозиториев
 - Не требует локальной настройки
+- **✅ УЖЕ РАБОТАЕТ** - просто сделайте push!
 
-### Настройка
+### ⚡ Быстрый старт
 
-Создайте файл `.github/workflows/build-android.yml`:
-
-```yaml
-name: Build Android APK
-
-on:
-  push:
-    branches: [ main, release/* ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Build APK
-      run: ./build-apk.sh
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: webplotdigitizer-apk
-        path: apk-releases/debug/*.apk
-
-    - name: Commit APK to repo
-      run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        git add apk-releases/
-        git diff --staged --quiet || git commit -m "Auto-build: APK v${{ github.run_number }}"
-        git push
+**Автоматическая сборка:**
+```bash
+git push  # APK соберется автоматически на GitHub!
 ```
 
-### Использование
-1. Сделайте push в репозиторий
-2. GitHub автоматически соберет APK
-3. Скачайте из Artifacts или коммит будет создан автоматически
+**Ручной запуск:**
+1. Откройте GitHub → Actions
+2. Выберите "Build Android APK"
+3. Нажмите "Run workflow"
+
+**Получить APK:**
+1. GitHub → Actions → выберите завершенный run
+2. Скачайте из "Artifacts"
+3. Или сделайте `git pull` - APK будет в `apk-releases/debug/`
+
+### Подробности
+
+**Настроено 2 workflow:**
+1. `.github/workflows/build-android.yml` - автоматическая сборка debug APK
+2. `.github/workflows/release-apk.yml` - сборка release APK
+
+**Подробная документация:** [.github/workflows/README.md](.github/workflows/README.md)
+
+**Что происходит:**
+- При каждом push GitHub автоматически собирает APK
+- APK загружается как Artifact (доступен 30 дней)
+- APK автоматически коммитится в `apk-releases/debug/`
+- Время сборки: ~5-10 минут
+
+**Никакой настройки не требуется** - просто делайте push!
 
 ---
 
