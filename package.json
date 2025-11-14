@@ -8,9 +8,17 @@
         "build": "uglifyjs combined.js -cm -o wpd.min.js",
         "format": "./format.sh",
         "test": "./node_modules/karma/bin/karma start",
-        "start": "http-server -o"
+        "start": "http-server -o",
+        "android:prepare": "mkdir -p www && cp *.html www/ 2>/dev/null || true && cp *.js www/ 2>/dev/null || true && cp -r styles www/ && cp -r images www/ && cp -r node_modules www/ && cp favicon.ico www/",
+        "android:sync": "npm run android:prepare && npx cap sync android",
+        "android:build": "cd android && ./gradlew assembleDebug",
+        "android:build:release": "cd android && ./gradlew assembleRelease",
+        "android:open": "npx cap open android"
     },
     "devDependencies": {
+        "@capacitor/android": "^7.4.4",
+        "@capacitor/cli": "^7.4.4",
+        "@capacitor/core": "^7.4.4",
         "http-server": "^14.1.1",
         "js-beautify": ">=1.14.0",
         "karma": ">=6.3.19",

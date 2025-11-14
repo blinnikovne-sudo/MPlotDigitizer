@@ -53,3 +53,30 @@ npm start       # host locally
 npm run format  # autoformat code
 npm run test    # run tests
 ```
+
+## Android APK Build
+
+### Method 1: Docker (Recommended)
+```bash
+./build-apk-docker.sh          # One command build with Docker
+```
+
+### Method 2: Local build (requires Android SDK)
+```bash
+./build-apk.sh                 # Quick build using script
+
+# Or step by step
+npm run build                  # Build web app
+npm run android:sync          # Sync with Android project
+npm run android:build         # Build debug APK
+```
+
+### Method 3: GitHub Actions (CI/CD)
+Push to repository and GitHub will automatically build APK.
+
+**Documentation:**
+- [BUILD_APK.md](BUILD_APK.md) - Standard build instructions
+- [ALTERNATIVE_BUILD_METHODS.md](ALTERNATIVE_BUILD_METHODS.md) - Docker, CI/CD, PWA options
+- [BUILDING_APK_LOCALLY.md](BUILDING_APK_LOCALLY.md) - Detailed local setup
+
+The APK will be located at: `apk-releases/debug/webplotdigitizer-v5.3.0-debug.apk`
