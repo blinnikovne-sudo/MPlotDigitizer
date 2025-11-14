@@ -33,16 +33,31 @@ npx cap sync android
 echo "[4/5] Сборка APK..."
 cd android
 ./gradlew assembleDebug
+cd ..
 
-# 5. Вывод результата
+# 5. Копирование APK в директорию релизов
+echo "[5/6] Копирование APK в apk-releases..."
+VERSION=$(node -pe "require('./package.json').version")
+APK_SOURCE="android/app/build/outputs/apk/debug/app-debug.apk"
+APK_DEST="apk-releases/debug/webplotdigitizer-v${VERSION}-debug.apk"
+
+if [ -f "$APK_SOURCE" ]; then
+    cp "$APK_SOURCE" "$APK_DEST"
+    echo "APK скопирован в: $APK_DEST"
+else
+    echo "Предупреждение: APK файл не найден в $APK_SOURCE"
+fi
+
+# 6. Вывод результата
 echo ""
 echo "========================================="
-echo "[5/5] Сборка завершена!"
+echo "[6/6] Сборка завершена!"
 echo "========================================="
 echo ""
 echo "APK файл находится в:"
-echo "android/app/build/outputs/apk/debug/app-debug.apk"
+echo "  - android/app/build/outputs/apk/debug/app-debug.apk"
+echo "  - $APK_DEST"
 echo ""
 echo "Для установки на устройство выполните:"
-echo "adb install android/app/build/outputs/apk/debug/app-debug.apk"
+echo "adb install $APK_DEST"
 echo ""

@@ -2,6 +2,8 @@
 
 Это руководство описывает процесс сборки Android APK для WebPlotDigitizer.
 
+> **Примечание:** Если вы собираете APK локально (не в Docker или CI/CD), смотрите подробные инструкции в [BUILDING_APK_LOCALLY.md](BUILDING_APK_LOCALLY.md)
+
 ## Требования
 
 Для сборки APK вам потребуется:
