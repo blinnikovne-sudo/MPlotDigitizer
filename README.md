@@ -53,3 +53,21 @@ npm start       # host locally
 npm run format  # autoformat code
 npm run test    # run tests
 ```
+
+## Android APK Build
+
+To build an Android APK:
+
+```bash
+# Quick build using script
+./build-apk.sh
+
+# Or step by step
+npm run build                  # Build web app
+npm run android:sync          # Sync with Android project
+npm run android:build         # Build debug APK
+```
+
+See [BUILD_APK.md](BUILD_APK.md) for detailed instructions.
+
+The APK will be located at: `android/app/build/outputs/apk/debug/app-debug.apk`
