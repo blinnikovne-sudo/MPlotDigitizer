@@ -2,22 +2,15 @@ name: Build Android APK
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - 'claude/**'
-      - 'release/**'
-  pull_request:
-    branches: [ main, master ]
+    branches: [ main, release/* ]
   workflow_dispatch:
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -40,85 +33,9 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
+
 
     - name: Install dependencies
       run: npm install
 
-    - name: Build web application
-      run: npm run build
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-
-    - name: Accept Android SDK licenses
-      run: yes | sdkmanager --licenses || true
-
-    - name: Prepare www directory for Capacitor
-      run: |
-        mkdir -p www
-        cp *.html www/ 2>/dev/null || true
-        cp *.js www/ 2>/dev/null || true
-        cp -r styles www/ 2>/dev/null || true
-        cp -r images www/ 2>/dev/null || true
-        cp -r node_modules www/ 2>/dev/null || true
-        cp favicon.ico www/ 2>/dev/null || true
-
-    - name: Add Android platform
-      run: npx cap add android
-
-    - name: Sync Capacitor
-      run: npx cap sync android
-
-    - name: Make gradlew executable
-      run: chmod +x android/gradlew
-
-    - name: Build debug APK
-      run: |
-        cd android
-        ./gradlew assembleDebug --no-daemon --stacktrace
-
-    - name: Copy APK to releases directory
-      run: |
-        VERSION=$(node -pe "require('./package.json').version")
-        mkdir -p apk-releases/debug
-        cp android/app/build/outputs/apk/debug/app-debug.apk \
-           apk-releases/debug/webplotdigitizer-v${VERSION}-debug.apk
-        ls -lh apk-releases/debug/
-
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: webplotdigitizer-debug-apk
-        path: apk-releases/debug/*.apk
-        retention-days: 30
-
-    - name: Commit APK to repository
-      if: github.event_name == 'push'
-      run: |
-        git config user.name "GitHub Actions Bot"
-        git config user.email "actions@github.com"
-        git add apk-releases/debug/*.apk
-        git diff --staged --quiet || git commit -m "Auto-build: Add APK from build #${{ github.run_number }}"
-        git push || echo "Nothing to push or push failed"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create build summary
-      if: always()
-      run: |
-        echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Build Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        if [ -f "apk-releases/debug/webplotdigitizer-v5.3.0-debug.apk" ]; then
-          APK_SIZE=$(ls -lh apk-releases/debug/*.apk | awk '{print $5}')
-          echo "✅ **APK built successfully!**" >> $GITHUB_STEP_SUMMARY
-          echo "**Size:** $APK_SIZE" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Download from Artifacts above ⬆️" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ **APK build failed**" >> $GITHUB_STEP_SUMMARY
-        fi
