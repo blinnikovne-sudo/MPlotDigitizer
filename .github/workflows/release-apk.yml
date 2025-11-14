@@ -60,6 +60,9 @@ jobs:
         cp -r node_modules www/ 2>/dev/null || true
         cp favicon.ico www/ 2>/dev/null || true
 
+    - name: Add Android platform
+      run: npx cap add android
+
     - name: Sync Capacitor
       run: npx cap sync android
 
